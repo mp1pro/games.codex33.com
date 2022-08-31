@@ -4,14 +4,49 @@
     <meta charset="UTF-8">
     <title>Games</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        body{
+            position: fixed;
+            left: 0px;
+            right: 0px;
+            top: 0px;
+            bottom: 0px;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;"
+        }
+
+        #stack {
+            position:relative;
+        }
+        #stack > canvas {
+            position:absolute;
+            left:0;
+            top:0;
+        }
+        #bg{
+            z-index: 1;
+        }
+        #space{
+            z-index: 2;
+        }
+    </style>
 </head>
 <body>
-<canvas id="bg"></canvas>
+<div id="stack">
+    <canvas id="bg"></canvas>
+    <canvas id="space"></canvas>
+</div>
 <script type='text/javascript' >
     let w;
     let h;
+    let c;
+    let ctx;
+    let canvas;
+    let canvas2;
 </script>
 <script type='text/javascript' src='w-resize.js'></script>
 <script type='text/javascript' src='bg-stars.js'></script>
+<script type='text/javascript' src='space.js'></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
-//console.log('hw',window.height)
-//console.log('ww',window.width)
+console.log('hw',h)
+console.log('ww',w)
 
 const makeStars = count => {
     const out = [];
@@ -18,7 +18,7 @@ let stars = makeStars(10000);
 
 const clear = () => {
     c.fillStyle = "black";
-    c.fillRect(0, 0, canvas.width, canvas.height);
+    c.fillRect(0, 0, w, h);
 };
 
 const putPixel = (x, y, brightness) => {
