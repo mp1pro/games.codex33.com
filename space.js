@@ -1,12 +1,26 @@
-//Data URL or load all images
-let image = new Image();
-// Create new img element
-image.addEventListener('load', () => {
-    // execute drawImage statements here
-    ctx.drawImage(image, 500, 500);
-}, false);
-image.src = "assets/ship.png";
+//create array for ships
+const images = ["assets/enemyships/enemy.png","assets/enemyships/enemy2.png","assets/enemyships/enemy3.png","assets/ship.png"];
+let image = [];
+(function() {
+    let imagesLoaded = 0;
+    for(let i =0; i < images.length; i++){
+        image[i] = new Image();
+        image[i].addEventListener('load', () => {
+            // execute drawImage statements here
+            //ctx.drawImage(image, 500, 500);
+            imagesLoaded++;
+            if(imagesLoaded === images.length){
+                console.log('we can start',imagesLoaded,images.length);
+                drawImage();
+            }
+        }, false);
+        image[i].src = images[i];
+    }
+})();
 
+let drawImage = () => {
+    ctx.drawImage(image[3], 500, 500);
+}
 
 class Player {
     rightPressed = false;
