@@ -1,6 +1,23 @@
 //create array for ships
 const images = ["assets/enemyships/enemy.png","assets/enemyships/enemy2.png","assets/enemyships/enemy3.png","assets/ship.png"];
 let image = [];
+let raf;
+let move = {};
+let c2w = canvas2.width
+console.table({w,h,c2w});
+
+const ship = {
+    x:w/2 - (w/10)/2,
+    y:h - (h/10),
+    w:w/10,
+    h:h/10,
+    vy:0,
+    vx:0,
+    draw() {
+        ctx.drawImage(image[3],this.x, this.y, this.w, this.h);
+    }
+};
+
 (function() {
     let imagesLoaded = 0;
     for(let i =0; i < images.length; i++){
@@ -11,18 +28,28 @@ let image = [];
             imagesLoaded++;
             if(imagesLoaded === images.length){
                 console.log('we can start',imagesLoaded,images.length);
-                drawImage();
+                startGame();
             }
         }, false);
         image[i].src = images[i];
     }
 })();
 
-let drawImage = () => {
-    ctx.drawImage(image[3], 500, 500);
+let startGame = () => {
+
+    //ctx.drawImage(image[3], 500, 500);
+    raf = window.requestAnimationFrame(gameLoop);
+
 }
 
-class Player {
+let gameLoop = (w,h) =>{
+    ctx.clearRect(0, 0, w, h);
+    //call ship object here
+    ship.draw();
+    window.requestAnimationFrame(gameLoop)
+}
+
+/*class Player {
     rightPressed = false;
     leftPressed = false;
     shootPressed = false;
@@ -101,5 +128,5 @@ class Player {
             this.shootPressed = false;
         }
     };
-}
+}*/
 
