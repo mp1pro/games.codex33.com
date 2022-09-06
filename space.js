@@ -4,7 +4,7 @@ let image = [];
 let raf;
 let move = {};
 let c2w = canvas2.width
-console.table({w,h,c2w});
+
 
 const ship = {
     x:w/2 - (w/10)/2,
@@ -15,6 +15,12 @@ const ship = {
     vx:0,
     draw() {
         ctx.drawImage(image[3],this.x, this.y, this.w, this.h);
+    },
+    reset(w,h){
+        this.x = w/2 - (w/10)/2;
+        this.y = h - (h/10);
+        this.w = w/10;
+        this.h = h/10;
     }
 };
 
@@ -42,8 +48,11 @@ let startGame = () => {
 
 }
 
-let gameLoop = (w,h) =>{
+let gameLoop = () =>{
+    //console.table({w,h,c2w});
     ctx.clearRect(0, 0, w, h);
+    // catch new window dimensions and reset screen and ship size
+    ship.reset(w,h);
     //call ship object here
     ship.draw();
     window.requestAnimationFrame(gameLoop)
