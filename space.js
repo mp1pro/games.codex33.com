@@ -5,8 +5,6 @@ let raf;
 let move = {};
 let c2w = canvas2.width
 let start, previousTimeStamp;
-let done = false;
-
 
 const ship = {
     x:w/2 - (w/10)/2,
@@ -22,12 +20,23 @@ const ship = {
     yMove: (h/10),
     velocity:(w/10)/7.5,
     update(){
-        console.log('keypress',this.r,'position',this.x,'velocity',this.velocity);
+        //console.log('keypress',this.r,'position',this.x,'velocity',this.velocity);
         if (this.r) {
             this.x += this.velocity;
             //console.log('trigger here','v',this.velocity);
         } else if (this.l) {
             this.x += -this.velocity;
+        }
+    },
+    bounds(){
+        //console.log('bounds',this.x,'w',w-(w/10));
+        //stay in bounds to the left of screen
+        if(this.x < 0){
+            this.x = 0;
+        }
+        //stay in bounds to the right of screen
+        if(this.x > w-(w/10)){
+            this.x = w-(w/10);
         }
     },
     draw() {
@@ -38,6 +47,8 @@ const ship = {
         this.y = h - (h / 10);
         this.w = w / 10;
         this.h = h / 10;
+        console.log('reset2/////////////////////////////////////////////////',reset);
+        reset =false;
     },
     keydown(event){
         if (event.key === "ArrowRight") {
@@ -65,7 +76,6 @@ const ship = {
 
 (function() {
     let imagesLoaded = 0;
-    //TODO use e.key
     window.addEventListener('keydown', (e)=>{
         let key = e.key;
         if(key === "ArrowRight" || key === "ArrowLeft" || key === "Space") {
@@ -103,20 +113,25 @@ let gameLoop = (timestamp) =>{
     //clear canvas
     ctx.clearRect(0, 0, w, h);
 
-    // catch new window dimensions and reset screen and ship size
-    //ship.reset(w,h);
+    //move ship here
+    ship.update();
+
+    //set boundaries here
+    ship.bounds();
+
+
+
+    // check if window resize here
+    if(reset === true){
+        ship.reset(w,h);
+    }
 
     //draw ship object here
     ship.draw();
 
-    //move ship here
-    ship.update();
-
-    console.log('x',ship.x)
+    //console.log('x',ship.x)
     // call animation again
     window.requestAnimationFrame(gameLoop);
-
-    //console.table({w,h,c2w});
 }
 
 
