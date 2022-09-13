@@ -4,6 +4,8 @@ let image = [];
 let raf;
 let move = {};
 let c2w = canvas2.width
+let start, previousTimeStamp;
+let done = false;
 
 
 const ship = {
@@ -13,19 +15,68 @@ const ship = {
     h:h/10,
     vy:0,
     vx:0,
+    r:false,
+    l:false,
+    s:false,
+    xMove: (w/10) + (w/10)/2,
+    yMove: (h/10),
+    velocity:(w/10)/7.5,
+    update(){
+        console.log('keypress',this.r,'position',this.x,'velocity',this.velocity);
+        if (this.r) {
+            this.x += this.velocity;
+            //console.log('trigger here','v',this.velocity);
+        } else if (this.l) {
+            this.x += -this.velocity;
+        }
+    },
     draw() {
         ctx.drawImage(image[3],this.x, this.y, this.w, this.h);
     },
-    reset(w,h){
-        this.x = w/2 - (w/10)/2;
-        this.y = h - (h/10);
-        this.w = w/10;
-        this.h = h/10;
+    reset(w,h) {
+        this.x = w / 2 - (w / 10) / 2;
+        this.y = h - (h / 10);
+        this.w = w / 10;
+        this.h = h / 10;
+    },
+    keydown(event){
+        if (event.key === "ArrowRight") {
+            this.r = true;
+        }
+        if (event.key === "ArrowLeft") {
+            this.l = true;
+        }
+        if (event.key === "Space") {
+            this.s = true;
+        }
+    },
+    keyup(event){
+        if (event.key === "ArrowRight") {
+            this.r = false;
+        }
+        if (event.key === "ArrowLeft") {
+            this.l = false;
+        }
+        if (event.key === "Space") {
+            this.s = false;
+        }
     }
 };
 
 (function() {
     let imagesLoaded = 0;
+    //TODO use e.key
+    window.addEventListener('keydown', (e)=>{
+        let key = e.key;
+        if(key === "ArrowRight" || key === "ArrowLeft" || key === "Space") {
+            e.preventDefault();
+        }
+        ship.keydown(e);
+
+    });
+    document.addEventListener('keyup', (e)=>{
+        ship.keyup(e);
+    });
     for(let i =0; i < images.length; i++){
         image[i] = new Image();
         image[i].addEventListener('load', () => {
@@ -33,7 +84,7 @@ const ship = {
             //ctx.drawImage(image, 500, 500);
             imagesLoaded++;
             if(imagesLoaded === images.length){
-                console.log('we can start',imagesLoaded,images.length);
+                //console.log('we can start',imagesLoaded,images.length);
                 startGame();
             }
         }, false);
@@ -48,15 +99,26 @@ let startGame = () => {
 
 }
 
-let gameLoop = () =>{
-    //console.table({w,h,c2w});
+let gameLoop = (timestamp) =>{
+    //clear canvas
     ctx.clearRect(0, 0, w, h);
+
     // catch new window dimensions and reset screen and ship size
-    ship.reset(w,h);
-    //call ship object here
+    //ship.reset(w,h);
+
+    //draw ship object here
     ship.draw();
-    window.requestAnimationFrame(gameLoop)
+
+    //move ship here
+    ship.update();
+
+    console.log('x',ship.x)
+    // call animation again
+    window.requestAnimationFrame(gameLoop);
+
+    //console.table({w,h,c2w});
 }
+
 
 /*class Player {
     rightPressed = false;
