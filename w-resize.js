@@ -18,6 +18,7 @@ const setCanvasExtents = () => {
 
     c = canvas.getContext("2d");
     ctx = canvas2.getContext("2d");
+    reset = true;
 };
 
 setCanvasExtents();
