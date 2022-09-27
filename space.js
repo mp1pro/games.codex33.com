@@ -7,7 +7,7 @@ let c2w = canvas2.width
 let start, previousTimeStamp;
 
 const ship = {
-    x:w/2 - (w/10)/2,
+    x:w/2 - ((w/10)/2),
     y:h - (h/10),
     w:w/10,
     h:h/10,
@@ -16,16 +16,41 @@ const ship = {
     r:false,
     l:false,
     s:false,
+    shoot:true,
     xMove: (w/10) + (w/10)/2,
     yMove: (h/10),
     velocity:(w/10)/7.5,
+    lazor:{
+        x:w/2 + ((w/1000)),
+        y:h - ((h/10)*2),
+        w:w/1000,
+        h:(h/10)
+    },
+    draw() {
+        ctx.drawImage(image[3],this.x, this.y, this.w, this.h);
+    },
+    fireLazor(){
+        console.log('lazor',this.lazor.y,this.lazor.h);
+        ctx.fillStyle = "#FF0000";
+        if(this.lazor.y > (-1 * this.lazor.h)){
+            this.lazor.x = this.x + (w/10)/2;
+            ctx.fillRect(this.lazor.x, this.lazor.y, this.lazor.w, this.lazor.h);
+            this.lazor.y -= this.lazor.h;
+        }
+        else{
+            // this.shoot = false;
+            this.s = false;
+            this.lazor.y = h - ((h/10)*2);
+        }
+    },
     update(){
-        //console.log('keypress',this.r,'position',this.x,'velocity',this.velocity);
         if (this.r) {
             this.x += this.velocity;
-            //console.log('trigger here','v',this.velocity);
         } else if (this.l) {
             this.x += -this.velocity;
+        }
+        if (this.s) {
+            this.fireLazor();
         }
     },
     bounds(){
@@ -39,37 +64,32 @@ const ship = {
             this.x = w-(w/10);
         }
     },
-    draw() {
-        ctx.drawImage(image[3],this.x, this.y, this.w, this.h);
-    },
+
     reset(w,h) {
         this.x = w / 2 - (w / 10) / 2;
         this.y = h - (h / 10);
         this.w = w / 10;
         this.h = h / 10;
-        console.log('reset2/////////////////////////////////////////////////',reset);
+        // console.log('reset2/////////////////////////////////////////////////',reset);
         reset =false;
     },
-    keydown(event){
-        if (event.key === "ArrowRight") {
+    keydown(key){
+        if (key === "ArrowRight") {
             this.r = true;
         }
-        if (event.key === "ArrowLeft") {
+        if (key === "ArrowLeft") {
             this.l = true;
         }
-        if (event.key === "Space") {
+        if (key === " ") {
             this.s = true;
         }
     },
-    keyup(event){
-        if (event.key === "ArrowRight") {
+    keyup(key){
+        if (key === "ArrowRight") {
             this.r = false;
         }
-        if (event.key === "ArrowLeft") {
+        if (key === "ArrowLeft") {
             this.l = false;
-        }
-        if (event.key === "Space") {
-            this.s = false;
         }
     }
 };
@@ -78,14 +98,15 @@ const ship = {
     let imagesLoaded = 0;
     window.addEventListener('keydown', (e)=>{
         let key = e.key;
-        if(key === "ArrowRight" || key === "ArrowLeft" || key === "Space") {
+        if(key === "ArrowRight" || key === "ArrowLeft" || key === " ") {
             e.preventDefault();
         }
-        ship.keydown(e);
+        ship.keydown(key);
 
     });
     document.addEventListener('keyup', (e)=>{
-        ship.keyup(e);
+        let key = e.key;
+        ship.keyup(key);
     });
     for(let i =0; i < images.length; i++){
         image[i] = new Image();
