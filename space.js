@@ -30,7 +30,6 @@ const ship = {
         ctx.drawImage(image[3],this.x, this.y, this.w, this.h);
     },
     fireLazor(){
-        console.log('lazor',this.lazor.y,this.lazor.h);
         ctx.fillStyle = "#FF0000";
         if(this.lazor.y > (-1 * this.lazor.h)){
             this.lazor.x = this.x + (w/10)/2;
@@ -38,7 +37,6 @@ const ship = {
             this.lazor.y -= this.lazor.h;
         }
         else{
-            // this.shoot = false;
             this.s = false;
             this.lazor.y = h - ((h/10)*2);
         }
@@ -70,7 +68,6 @@ const ship = {
         this.y = h - (h / 10);
         this.w = w / 10;
         this.h = h / 10;
-        // console.log('reset2/////////////////////////////////////////////////',reset);
         reset =false;
     },
     keydown(key){
