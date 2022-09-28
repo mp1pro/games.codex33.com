@@ -6,6 +6,16 @@ let move = {};
 let c2w = canvas2.width
 let start, previousTimeStamp;
 let positions=[];
+let enemyShips = [];
+let timer = 0;
+let lastTime = (new Date()).getTime();
+
+//enemyShip object
+const enemyShip = function(){
+
+};
+
+
 
 const ship = {
     x:w/2 - ((w/10)/2),
@@ -171,7 +181,32 @@ let gameLoop = (timestamp) =>{
     //draw ship object here
     ship.draw();
 
-    //console.log('x',ship.x)
+    //timer
+    let currentTime = (new Date()).getTime();
+
+    if (currentTime - lastTime >= 1000) {
+
+        //console.log("Last Time: " + lastTime);
+        //console.log("Current Time: " + currentTime);
+
+        lastTime = currentTime;
+        timer++;
+        // call the function that uses timer here
+        //console.log('timer',timer);
+        enemyShips.push(new enemyShip(
+            //set random values here
+        ))
+
+    }
+
+    //loop through each enemy ship here
+    enemyShips.forEach(function(enemy){
+        //draw enemyship
+        //update enemyship with gravity
+        //bounce enemy off walls
+    });
+
+
     // call animation again
     window.requestAnimationFrame(gameLoop);
 }
