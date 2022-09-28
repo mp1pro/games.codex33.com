@@ -5,6 +5,7 @@ let raf;
 let move = {};
 let c2w = canvas2.width
 let start, previousTimeStamp;
+let positions=[];
 
 const ship = {
     x:w/2 - ((w/10)/2),
@@ -26,11 +27,33 @@ const ship = {
         w:w/1000,
         h:(h/10)
     },
+    trailLen:6,
+    trail(){
+        for (let i = 0; i < positions.length; i++) {
+            ctx.globalAlpha = (i + 1) / positions.length;
+            ctx.drawImage(image[3],positions[i].x, positions[i].y, this.w, this.h);
+        }
+    },
+    storeLast(x,y){
+        // push an item
+        positions.push({
+            x: x,
+            y: y
+        });
+
+        //get rid of first item
+        if (positions.length > this.trailLen) {
+            positions.shift();
+        }
+    },
     draw() {
+
         ctx.drawImage(image[3],this.x, this.y, this.w, this.h);
+        this.storeLast(this.x, this.y);
+        //console.log('position',positions);
     },
     fireLazor(){
-        ctx.fillStyle = "#FF0000";
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.9)';
         if(this.lazor.y > (-1 * this.lazor.h)){
             this.lazor.x = this.x + (w/10)/2;
             ctx.fillRect(this.lazor.x, this.lazor.y, this.lazor.w, this.lazor.h);
@@ -137,12 +160,13 @@ let gameLoop = (timestamp) =>{
     //set boundaries here
     ship.bounds();
 
-
-
     // check if window resize here
     if(reset === true){
         ship.reset(w,h);
     }
+
+    //trail effect
+    ship.trail();
 
     //draw ship object here
     ship.draw();
