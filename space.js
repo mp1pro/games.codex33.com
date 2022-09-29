@@ -10,13 +10,6 @@ let enemyShips = [];
 let timer = 0;
 let lastTime = (new Date()).getTime();
 
-//enemyShip object
-const enemyShip = function(){
-
-};
-
-
-
 const ship = {
     x:w/2 - ((w/10)/2),
     y:h - (h/10),
@@ -124,6 +117,8 @@ const ship = {
     }
 };
 
+
+
 (function() {
     let imagesLoaded = 0;
     window.addEventListener('keydown', (e)=>{
@@ -160,6 +155,40 @@ let startGame = () => {
 
 }
 
+//enemyShip object
+class EnemyShip{
+    constructor(x, y, dx, dy, imageNumber) {
+        this.x = x;
+        this.y = y;
+        this.dx = dx;
+        this.dy = dy;
+        this.width = w/10;
+        this.height = h/10;
+        this.imageNumber = imageNumber;
+    }
+
+    draw() {
+        ctx.drawImage(image[this.imageNumber], this.x, this.y, this.width, this.height);
+        this.move();
+        this.bounds();
+    }
+
+    move() {
+        this.x += this.dx;
+        this.y += this.dy;
+    }
+    bounds(){
+        if(this.x<0 || this.x>w){
+            this.dx = -this.dx
+        }
+
+        if(this.y<0 || this.y>h){
+            this.dy = -this.dy;
+        }
+    }
+
+}
+
 let gameLoop = (timestamp) =>{
     //clear canvas
     ctx.clearRect(0, 0, w, h);
@@ -193,103 +222,25 @@ let gameLoop = (timestamp) =>{
         timer++;
         // call the function that uses timer here
         //console.log('timer',timer);
-        enemyShips.push(new enemyShip(
-            //set random values here
-        ))
+        if(timer%3 === 0){
+            enemyShips.push(new EnemyShip(
+                //set random values here
+                Math.floor(Math.random() * w) + 1,
+                Math.floor(Math.random() * h) + 1,
+                Math.floor(Math.random() * 5),
+                Math.floor(Math.random() * 3),
+                Math.round(Math.random() * 1)
+            ));
+            //console.log('timerEneny',timer,enemyShips);
+        }
 
     }
 
     //loop through each enemy ship here
-    enemyShips.forEach(function(enemy){
-        //draw enemyship
-        //update enemyship with gravity
-        //bounce enemy off walls
-    });
-
+    enemyShips.forEach(function(eachShip){
+        eachShip.draw();
+    })
 
     // call animation again
     window.requestAnimationFrame(gameLoop);
 }
-
-
-/*class Player {
-    rightPressed = false;
-    leftPressed = false;
-    shootPressed = false;
-
-    constructor(canvas, velocity) {
-        this.canvas = canvas;
-        this.velocity = velocity;
-
-        this.x = this.canvas.width / 2;
-        this.y = this.canvas.height - 75;
-        this.width = 50;
-        this.height = 48;
-        this.image = new Image();
-        this.image.src = "assets/ship.png";
-
-        document.addEventListener("keydown", this.keydown);
-        document.addEventListener("keyup", this.keyup);
-    }
-    init(){
-        const x = this.props.width/2 - (this.props.width/10)/2;
-        const y = this.props.height - (this.props.height/10);
-
-        const move = {
-            x: x,
-            y: y
-        };
-
-        return move;
-    }
-
-    draw(ctx) {
-        console.log('draw',ctx,this.image, this.x, this.y, this.width, this.height);
-        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
-    }
-
-    collideWithWalls() {
-        //left
-        if (this.x < 0) {
-            this.x = 0;
-        }
-
-        //right
-        if (this.x > this.canvas.width - this.width) {
-            this.x = this.canvas.width - this.width;
-        }
-    }
-
-    move() {
-        if (this.rightPressed) {
-            this.x += this.velocity;
-        } else if (this.leftPressed) {
-            this.x += -this.velocity;
-        }
-    }
-
-    keydown = (event) => {
-        if (event.code == "ArrowRight") {
-            this.rightPressed = true;
-        }
-        if (event.code == "ArrowLeft") {
-            this.leftPressed = true;
-        }
-        if (event.code == "Space") {
-            this.shootPressed = true;
-        }
-    };
-
-    keyup = (event) => {
-        if (event.code == "ArrowRight") {
-            this.rightPressed = false;
-        }
-        if (event.code == "ArrowLeft") {
-            this.leftPressed = false;
-        }
-        if (event.code == "Space") {
-            this.shootPressed = false;
-        }
-    };
-}*/
-
