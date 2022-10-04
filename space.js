@@ -171,6 +171,7 @@ class EnemyShip{
         ctx.drawImage(image[this.imageNumber], this.x, this.y, this.width, this.height);
         this.move();
         this.bounds();
+        //console.log('x,y', this.x , this.y);
     }
 
     move() {
@@ -178,11 +179,11 @@ class EnemyShip{
         this.y += this.dy;
     }
     bounds(){
-        if(this.x<0 || this.x>w){
+        if(this.x<0 || this.x>w-(w/10)){
             this.dx = -this.dx
         }
 
-        if(this.y<0 || this.y>h){
+        if(this.y<0 || this.y>h-(h/10)){
             this.dy = -this.dy;
         }
     }
@@ -222,14 +223,34 @@ let gameLoop = (timestamp) =>{
         timer++;
         // call the function that uses timer here
         //console.log('timer',timer);
-        if(timer%3 === 0){
+        // noinspection DuplicatedCode
+        if(timer%1 === 0){
+            let x = Math.floor(Math.random() * w);
+
+            //good
+            if(x > w-(w/10)){
+                x =   w-(w/10);
+            }
+            //good
+            else if(x < (w/10)){
+                x = 0
+            }
+            let y = Math.floor(Math.random() * h);
+            if(y > h-(h/5)){
+                y =  h - ((h/5));
+            }
+            //good
+            else if(y < (h/10)){
+                y = 0
+            }
+
             enemyShips.push(new EnemyShip(
                 //set random values here
-                Math.floor(Math.random() * w) + 1,
-                Math.floor(Math.random() * h) + 1,
+                x,
+                y,
                 Math.floor(Math.random() * 5),
                 Math.floor(Math.random() * 3),
-                Math.round(Math.random() * 1)
+                Math.round(Math.random() * 2)
             ));
             //console.log('timerEneny',timer,enemyShips);
         }
