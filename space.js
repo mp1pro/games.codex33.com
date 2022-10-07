@@ -171,6 +171,7 @@ class EnemyShip{
         ctx.drawImage(image[this.imageNumber], this.x, this.y, this.width, this.height);
         this.move();
         this.bounds();
+        this.shipCollide();
         //console.log('x,y', this.x , this.y);
     }
 
@@ -185,6 +186,12 @@ class EnemyShip{
 
         if(this.y<0 || this.y>h-(h/10)){
             this.dy = -this.dy;
+        }
+    }
+    shipCollide(){
+
+        if((this.x >= (ship.x - ship.w) && this.x <= (ship.x + ship.w)) && (this.y >= ship.y)){
+            console.log('here',this.x,ship.x);
         }
     }
 
@@ -224,7 +231,7 @@ let gameLoop = (timestamp) =>{
         // call the function that uses timer here
         //console.log('timer',timer);
         // noinspection DuplicatedCode
-        if(timer%1 === 0){
+        if(enemyShips<1){
             let x = Math.floor(Math.random() * w);
 
             //good
@@ -248,9 +255,9 @@ let gameLoop = (timestamp) =>{
                 //set random values here
                 x,
                 y,
-                Math.floor(Math.random() * 5),
-                Math.floor(Math.random() * 3),
-                Math.round(Math.random() * 2)
+                6,
+                6,
+                1
             ));
             //console.log('timerEneny',timer,enemyShips);
         }
