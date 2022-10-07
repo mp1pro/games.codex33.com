@@ -9,6 +9,7 @@ let positions=[];
 let enemyShips = [];
 let timer = 0;
 let lastTime = (new Date()).getTime();
+let starShipCollide=false;
 
 const ship = {
     x:w/2 - ((w/10)/2),
@@ -31,6 +32,9 @@ const ship = {
         h:(h/10)
     },
     trailLen:6,
+    dimShip:false,
+    dimLen: 30,
+    dimCount: 0,
     trail(){
         for (let i = 0; i < positions.length; i++) {
             ctx.globalAlpha = (i + 1) / positions.length;
@@ -51,9 +55,27 @@ const ship = {
     },
     draw() {
 
-        ctx.drawImage(image[3],this.x, this.y, this.w, this.h);
+        if(starShipCollide){
+            let ran = (Math.floor(Math.random() * 10)) * 0.1;
+            ctx.globalAlpha = ran;
+            ctx.drawImage(image[3],this.x, this.y, this.w, this.h);
+
+            //dim count
+            this.dimCount++;
+
+            if (this.dimCount === this.dimLen) {
+                starShipCollide = false;
+                this.dimCount = 0;
+            }
+            //console.log('starship',starShipCollide);
+        }
+        else {
+            //trail effect
+            ctx.drawImage(image[3],this.x, this.y, this.w, this.h);
+            this.trail();
+        }
         this.storeLast(this.x, this.y);
-        //console.log('position',positions);
+
     },
     fireLazor(){
         ctx.fillStyle = 'rgba(255, 0, 0, 0.9)';
@@ -165,16 +187,34 @@ class EnemyShip{
         this.width = w/10;
         this.height = h/10;
         this.imageNumber = imageNumber;
+        this._dimShip = false;
+        this._dimLen = 30;
+        this._dimCount = 0;
     }
 
     draw() {
+        if(this._dimShip){
+            let ran = (Math.floor(Math.random() * 10)) * 0.1;
+            ctx.globalAlpha = ran;
+            ctx.drawImage(image[this.imageNumber],this.x, this.y, this.width, this.height);
+
+            //dim count
+            this._dimCount++;
+
+            if (this._dimCount === this._dimLen) {
+                this._dimShip = false;
+                this._dimCount = 0;
+            }
+        }
         ctx.drawImage(image[this.imageNumber], this.x, this.y, this.width, this.height);
         this.move();
         this.bounds();
         this.shipCollide();
         //console.log('x,y', this.x , this.y);
     }
-
+/*    dimShip(){
+        this._dimShip = true;
+    }*/
     move() {
         this.x += this.dx;
         this.y += this.dy;
@@ -189,12 +229,15 @@ class EnemyShip{
         }
     }
     shipCollide(){
-
+        // collide with star ship
         if((this.x >= (ship.x - ship.w) && this.x <= (ship.x + ship.w)) && (this.y >= ship.y)){
-            console.log('here',this.x,ship.x);
+
+            this._dimShip = true;
+            starShipCollide = true;
+            // ship.dimShip = true;
+            //console.log('here',this.x,ship._dimShip);
         }
     }
-
 }
 
 let gameLoop = (timestamp) =>{
@@ -213,7 +256,7 @@ let gameLoop = (timestamp) =>{
     }
 
     //trail effect
-    ship.trail();
+    //ship.trail();
 
     //draw ship object here
     ship.draw();
