@@ -187,35 +187,99 @@ class EnemyShip{
         this.width = w/10;
         this.height = h/10;
         this.imageNumber = imageNumber;
-        this._dimShip = false;
-        this._dimLen = 30;
-        this._dimCount = 0;
-    }
-
-    draw() {
-        if(this._dimShip){
-            let ran = (Math.floor(Math.random() * 10)) * 0.1;
-            ctx.globalAlpha = ran;
-            ctx.drawImage(image[this.imageNumber],this.x, this.y, this.width, this.height);
-
-            //dim count
-            this._dimCount++;
-
-            if (this._dimCount === this._dimLen) {
-                this._dimShip = false;
-                this._dimCount = 0;
-            }
+        this._shootShip = true;
+        this._shootLen = 60;
+        this._shootCount = 0;
+        this.eLazor={
+            _y:0,
+            x:x,
+            y:y,
+            w:w/500,
+            h:(h/20)
+        };
+        this.dim={
+            _dimShip: false,
+            _dimLen: 30,
+            _dimCount: 0
         }
-        ctx.drawImage(image[this.imageNumber], this.x, this.y, this.width, this.height);
+    }
+    draw(){
+        if(this.dim._dimShip){
+            this.dimmer(this.x,this.y);
+        }else{
+            ctx.drawImage(image[this.imageNumber], this.x, this.y, this.width, this.height);
+        }
+
         this.move();
         this.bounds();
         this.shipCollide();
-        //console.log('x,y', this.x , this.y);
+
+        if(timer%5 === 0 && this.y < h/2){
+            this._shootShip = true
+            //console.log('EVERY5');
+            //
+        }
+        //console.log('SHOOT',this._shootShip);
+
+        if(this._shootShip) {
+            this.shootLazor(this.y);
+        }
     }
-/*    dimShip(){
-        this._dimShip = true;
-    }*/
-    move() {
+    dimmer(xd,yd){
+        let ran = (Math.floor(Math.random() * 10)) * 0.1;
+        ctx.globalAlpha = ran;
+        ctx.drawImage(image[this.imageNumber],xd, yd, this.width, this.height);
+
+        //dim count
+        this.dim._dimCount++;
+
+        if (this.dim._dimCount === this.dim._dimLen) {
+            this.dim._dimShip = false;
+            this.dim._dimCount = 0;
+
+        }
+    }
+    shootLazor(ys) {
+            //console.log('here',ys);
+
+            ctx.fillStyle = 'rgba(0, 255, 0, 0.9)';
+            this.eLazor.x = this.x + this.width / 2;
+            // if(this.eLazor._y)
+            //this.eLazor._y = ys + (this.eLazor.h * 2);
+            ctx.fillRect(this.eLazor.x, ys+(this.eLazor.h*2)+this.eLazor._y, this.eLazor.w * 2, this.eLazor.h);
+
+            this.eLazor._y += this.eLazor.h;
+            if(this.eLazor._y >= h){
+                this._shootShip = false;
+                this.eLazor._y = 0;
+                //this.eLazor.x = this.x + this.width / 2;
+            }
+        /*              if (this.eLazor.y <= h) {
+                          this.eLazor.x = this.x + this.width / 2;
+                          //this.eLazor.y = this.y + (this.eLazor.h * 2);
+                          ctx.fillStyle = 'rgba(0, 255, 0, 0.9)';
+                          ctx.fillRect(this.eLazor.x, this.eLazor.y, this.eLazor.w * 2, this.eLazor.h);
+                          this.eLazor.y += this.eLazor.h;
+                      } else {
+                          this._shootShip = false;
+                          this.eLazor.x = this.x + this.width / 2;
+                      }*/
+
+/*        if(this._shootShip) {
+            console.log('here',this.eLazor.y);
+            this.eLazor.y = this.y + (this.eLazor.h * 2);
+            if (this.eLazor.y <= h) {
+                this.eLazor.x = this.x + this.width / 2;
+
+                ctx.fillRect(this.eLazor.x, this.eLazor.y, this.eLazor.w * 2, this.eLazor.h);
+                this.eLazor.y += 10;
+            } else {
+                this._shootShip = false;
+                this.eLazor.y = this.y + (this.eLazor.h * 2);
+            }
+        }*/
+    }
+    move(){
         this.x += this.dx;
         this.y += this.dy;
     }
@@ -232,10 +296,12 @@ class EnemyShip{
         // collide with star ship
         if((this.x >= (ship.x - ship.w) && this.x <= (ship.x + ship.w)) && (this.y >= ship.y)){
 
-            this._dimShip = true;
+            this.dim._dimShip = true;
             starShipCollide = true;
             // ship.dimShip = true;
-            //console.log('here',this.x,ship._dimShip);
+            //console.log('here',this.x,ship._dim.dimShip);
+            console.log('timerEneny',timer,enemyShips)
+
         }
     }
 }
@@ -274,7 +340,7 @@ let gameLoop = (timestamp) =>{
         // call the function that uses timer here
         //console.log('timer',timer);
         // noinspection DuplicatedCode
-        if(enemyShips<1){
+        if(timer%2 === 0 && enemyShips.length < 3){
             let x = Math.floor(Math.random() * w);
 
             //good
@@ -293,15 +359,16 @@ let gameLoop = (timestamp) =>{
             else if(y < (h/10)){
                 y = 0
             }
-
-            enemyShips.push(new EnemyShip(
+            let eachShip = new EnemyShip(
                 //set random values here
                 x,
                 y,
-                6,
-                6,
-                1
-            ));
+                3,
+                9,
+                Math.floor(Math.random() * 2) + 1
+            );
+
+            enemyShips.push(eachShip);
             //console.log('timerEneny',timer,enemyShips);
         }
 
@@ -310,6 +377,7 @@ let gameLoop = (timestamp) =>{
     //loop through each enemy ship here
     enemyShips.forEach(function(eachShip){
         eachShip.draw();
+
     })
 
     // call animation again
