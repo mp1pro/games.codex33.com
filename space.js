@@ -56,9 +56,9 @@ const ship = {
     draw() {
 
         if(starShipCollide){
-            let ran = (Math.floor(Math.random() * 10)) * 0.1;
-            ctx.globalAlpha = ran;
-            ctx.drawImage(image[3],this.x, this.y, this.w, this.h);
+            let ran = Math.random() < 0.5 ? this.width : 1;
+            //ctx.globalAlpha = ran;
+            ctx.drawImage(image[3],this.x, this.y, this.w/ran, this.h/ran);
 
             //dim count
             this.dimCount++;
@@ -226,9 +226,8 @@ class EnemyShip{
         }
     }
     dimmer(xd,yd){
-        let ran = (Math.floor(Math.random() * 10)) * 0.1;
-        ctx.globalAlpha = ran;
-        ctx.drawImage(image[this.imageNumber],xd, yd, this.width, this.height);
+        let ran = Math.random() < 0.5 ? this.width : 1;
+        ctx.drawImage(image[this.imageNumber],xd, yd, (this.width)/ran, (this.height)/ran);
 
         //dim count
         this.dim._dimCount++;
@@ -236,7 +235,6 @@ class EnemyShip{
         if (this.dim._dimCount === this.dim._dimLen) {
             this.dim._dimShip = false;
             this.dim._dimCount = 0;
-
         }
     }
     shootLazor(ys) {
