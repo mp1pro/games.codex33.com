@@ -22,6 +22,7 @@ const ship = {
     l:false,
     s:false,
     shoot:true,
+    lives:3,
     xMove: (w/10) + (w/10)/2,
     yMove: (h/10),
     velocity:(w/10)/7.5,
@@ -33,8 +34,13 @@ const ship = {
     },
     trailLen:6,
     dimShip:false,
-    dimLen: 30,
+    dimLen: 60,
     dimCount: 0,
+    shipLives(){
+        if(starShipCollide){
+            this.lives -= 1;
+        }
+    },
     trail(){
         for (let i = 0; i < positions.length; i++) {
             ctx.globalAlpha = (i + 1) / positions.length;
@@ -64,10 +70,10 @@ const ship = {
             this.dimCount++;
 
             if (this.dimCount === this.dimLen) {
+                this.shipLives();
                 starShipCollide = false;
                 this.dimCount = 0;
             }
-            //console.log('starship',starShipCollide);
         }
         else {
             //trail effect
@@ -79,7 +85,7 @@ const ship = {
     },
     fireLazor(){
         ctx.fillStyle = 'rgba(255, 0, 0, 0.9)';
-        if(this.lazor.y > (-1 * this.lazor.h)){
+        if(this.lazor.y > (-1 * this.lazor.h * 2)){
             this.lazor.x = this.x + (w/10)/2;
             ctx.fillRect(this.lazor.x, this.lazor.y, this.lazor.w, this.lazor.h);
             this.lazor.y -= this.lazor.h;
@@ -190,6 +196,7 @@ class EnemyShip{
         this._shootShip = true;
         this._shootLen = 60;
         this._shootCount = 0;
+        this.lives = 3;
         this.eLazor={
             _y:0,
             x:x,
@@ -199,8 +206,13 @@ class EnemyShip{
         };
         this.dim={
             _dimShip: false,
-            _dimLen: 30,
+            _dimLen: 60,
             _dimCount: 0
+        }
+    }
+    shipLives(){
+        if(this.dim._dimShip){
+            this.lives -= 1;
         }
     }
     draw(){
@@ -213,13 +225,13 @@ class EnemyShip{
         this.move();
         this.bounds();
         this.shipCollide();
+        this.shootStarShip();
+        this.shotByStarShip();
 
         if(timer%5 === 0 && this.y < h/2){
             this._shootShip = true
             //console.log('EVERY5');
-            //
-        }
-        //console.log('SHOOT',this._shootShip);
+        }            //
 
         if(this._shootShip) {
             this.shootLazor(this.y);
@@ -233,12 +245,12 @@ class EnemyShip{
         this.dim._dimCount++;
 
         if (this.dim._dimCount === this.dim._dimLen) {
+            this.shipLives();
             this.dim._dimShip = false;
             this.dim._dimCount = 0;
         }
     }
-    shootLazor(ys) {
-            //console.log('here',ys);
+    shootLazor(ys){
 
             ctx.fillStyle = 'rgba(0, 255, 0, 0.9)';
             this.eLazor.x = this.x + this.width / 2;
@@ -250,32 +262,7 @@ class EnemyShip{
             if(this.eLazor._y >= h){
                 this._shootShip = false;
                 this.eLazor._y = 0;
-                //this.eLazor.x = this.x + this.width / 2;
             }
-        /*              if (this.eLazor.y <= h) {
-                          this.eLazor.x = this.x + this.width / 2;
-                          //this.eLazor.y = this.y + (this.eLazor.h * 2);
-                          ctx.fillStyle = 'rgba(0, 255, 0, 0.9)';
-                          ctx.fillRect(this.eLazor.x, this.eLazor.y, this.eLazor.w * 2, this.eLazor.h);
-                          this.eLazor.y += this.eLazor.h;
-                      } else {
-                          this._shootShip = false;
-                          this.eLazor.x = this.x + this.width / 2;
-                      }*/
-
-/*        if(this._shootShip) {
-            console.log('here',this.eLazor.y);
-            this.eLazor.y = this.y + (this.eLazor.h * 2);
-            if (this.eLazor.y <= h) {
-                this.eLazor.x = this.x + this.width / 2;
-
-                ctx.fillRect(this.eLazor.x, this.eLazor.y, this.eLazor.w * 2, this.eLazor.h);
-                this.eLazor.y += 10;
-            } else {
-                this._shootShip = false;
-                this.eLazor.y = this.y + (this.eLazor.h * 2);
-            }
-        }*/
     }
     move(){
         this.x += this.dx;
@@ -293,13 +280,21 @@ class EnemyShip{
     shipCollide(){
         // collide with star ship
         if((this.x >= (ship.x - ship.w) && this.x <= (ship.x + ship.w)) && (this.y >= ship.y)){
-
             this.dim._dimShip = true;
             starShipCollide = true;
-            // ship.dimShip = true;
-            //console.log('here',this.x,ship._dim.dimShip);
-            console.log('timerEneny',timer,enemyShips)
-
+        }
+    }
+    shootStarShip(){
+        // shoot star ship
+        if((this.eLazor.x >= (ship.x) && this.eLazor.x <= (ship.x + ship.w)) && (this.eLazor._y >= ship.y)){
+            starShipCollide = true;
+        }
+    }
+    shotByStarShip(){
+        //shot by star Ship
+        if(ship.s && ship.lazor.x >= this.x && ship.lazor.x <= (this.x + this.width) && (ship.lazor.y <= this.y)){
+            //console.log('KILL',ship.lazor.x, this.x );
+            this.dim._dimShip = true;
         }
     }
 }
@@ -338,7 +333,7 @@ let gameLoop = (timestamp) =>{
         // call the function that uses timer here
         //console.log('timer',timer);
         // noinspection DuplicatedCode
-        if(timer%2 === 0 && enemyShips.length < 3){
+        if(timer%2 === 0 && enemyShips.length < 1){
             let x = Math.floor(Math.random() * w);
 
             //good
@@ -360,9 +355,9 @@ let gameLoop = (timestamp) =>{
             let eachShip = new EnemyShip(
                 //set random values here
                 x,
-                y,
-                3,
-                9,
+                10,
+                0,
+                0,
                 Math.floor(Math.random() * 2) + 1
             );
 
@@ -375,7 +370,6 @@ let gameLoop = (timestamp) =>{
     //loop through each enemy ship here
     enemyShips.forEach(function(eachShip){
         eachShip.draw();
-
     })
 
     // call animation again
