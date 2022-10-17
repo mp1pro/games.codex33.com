@@ -6,36 +6,86 @@ let move = {};
 let c2w = canvas2.width
 let start, previousTimeStamp;
 let positions=[];
+let star_particles= [];
 let enemyShips = [];
+let _particles = [];
 let timer = 0;
 let lastTime = (new Date()).getTime();
 let starShipCollide=false;
+const particles_num = 100;
+let damage = false;
+let star_damage = false;
+let explode = false;
+let star_explode = false;
+
 
 const ship = {
-    x:w/2 - ((w/10)/2),
-    y:h - (h/10),
-    w:w/10,
-    h:h/10,
-    vy:0,
-    vx:0,
-    r:false,
-    l:false,
-    s:false,
-    shoot:true,
-    lives:3,
-    xMove: (w/10) + (w/10)/2,
-    yMove: (h/10),
-    velocity:(w/10)/7.5,
-    lazor:{
-        x:w/2 + ((w/1000)),
-        y:h - ((h/10)*2),
-        w:w/1000,
-        h:(h/10)
+    x: w / 2 - ((w / 10) / 2),
+    y: h - (h / 10),
+    w: w / 10,
+    h: h / 10,
+    vy: 0,
+    vx: 0,
+    r: false,
+    l: false,
+    s: false,
+    shoot: true,
+    lives: 1,
+    xMove: (w / 10) + (w / 10) / 2,
+    yMove: (h / 10),
+    velocity: (w / 10) / 7.5,
+    lazor: {
+        x: w / 2 + ((w / 1000)),
+        y: h - ((h / 10) * 2),
+        w: w / 1000,
+        h: (h / 10)
     },
-    trailLen:6,
-    dimShip:false,
+    trailLen: 6,
+    dimShip: false,
     dimLen: 60,
     dimCount: 0,
+    particle:{
+        _y:0,
+        _x:0,
+    },
+    explosion(x, y) {
+        if (star_particles.length === 0) {
+            for (let i = 0; i < particles_num; i++) {
+                let xn = x + this.w / 2;
+                let yn = y + (this.h / 2);
+                let num0 = Math.floor(Math.random() * 15) + 1;
+                let num = Math.floor(Math.random() * 15) + 1;
+                let num2 = (Math.round(Math.random()) ? 1 : -1) * num0;
+                let num3 = (Math.round(Math.random()) ? 1 : -1) * num;
+                let dx = num2;
+                let dy = num3;
+                let rad = Math.random() * 3;
+                let r = Math.round(Math.random()) * 255;
+                let g = Math.round(Math.random()) * 255;
+                let b = Math.round(Math.random()) * 255;
+                let ran = Math.round(Math.random()) + 1;
+                let width = this.w;
+                let color = `rgba(${r},${g},${b},${ran})`;
+                let p = this.particle;
+
+                let particle = new Particles_Con(
+                    xn, yn, dx, dy, rad, width, color, p
+                );
+                star_particles.push(particle);
+            }
+        }
+
+        if (star_particles.length > 1) {
+
+            //turn off lazer here
+            star_damage = true
+            starShipCollide = false;
+            let b = 'star';
+            star_particles.forEach(function (particle) {
+                particle.draw(b);
+            });
+        }
+    },
     shipLives(){
         if(starShipCollide){
             this.lives -= 1;
@@ -60,8 +110,10 @@ const ship = {
         }
     },
     draw() {
-
-        if(starShipCollide){
+        if(star_explode && !starShipCollide){
+            this.explosion(this.x,this.y);
+        }
+        else if(starShipCollide){
             let ran = Math.random() < 0.5 ? this.width : 1;
             //ctx.globalAlpha = ran;
             ctx.drawImage(image[3],this.x, this.y, this.w/ran, this.h/ran);
@@ -70,6 +122,9 @@ const ship = {
             this.dimCount++;
 
             if (this.dimCount === this.dimLen) {
+                if(this.lives <= 0){
+                    star_explode = true;
+                }
                 this.shipLives();
                 starShipCollide = false;
                 this.dimCount = 0;
@@ -106,7 +161,6 @@ const ship = {
         }
     },
     bounds(){
-        //console.log('bounds',this.x,'w',w-(w/10));
         //stay in bounds to the left of screen
         if(this.x < 0){
             this.x = 0;
@@ -116,7 +170,6 @@ const ship = {
             this.x = w-(w/10);
         }
     },
-
     reset(w,h) {
         this.x = w / 2 - (w / 10) / 2;
         this.y = h - (h / 10);
@@ -145,8 +198,6 @@ const ship = {
     }
 };
 
-
-
 (function() {
     let imagesLoaded = 0;
     window.addEventListener('keydown', (e)=>{
@@ -155,7 +206,6 @@ const ship = {
             e.preventDefault();
         }
         ship.keydown(key);
-
     });
     document.addEventListener('keyup', (e)=>{
         let key = e.key;
@@ -168,7 +218,6 @@ const ship = {
             //ctx.drawImage(image, 500, 500);
             imagesLoaded++;
             if(imagesLoaded === images.length){
-                //console.log('we can start',imagesLoaded,images.length);
                 startGame();
             }
         }, false);
@@ -181,6 +230,39 @@ let startGame = () => {
     //ctx.drawImage(image[3], 500, 500);
     raf = window.requestAnimationFrame(gameLoop);
 
+}
+
+function Particles_Con(x, y, dx, dy, rad, width, color, p) {
+    this.x = x;
+    this.y = y;
+    this._x = p._x;
+    this._y = p._y;
+    this.width = width;
+
+    this.draw = function (b){
+        //console.log('b',this.x)
+        ctx.fillStyle = color;
+        ctx.fillRect(this.x + this._x, this.y + this._y,this.width/50,this.width/50);
+        this.update(b);
+    };
+    this.update = function (b){
+            this._x += dx;
+            this._y += dy;
+
+        if (this._x > (this.width)*2 || this._x < (this.width)*-2){
+            if (b ==='star') {
+                star_particles.length = 0;
+                star_damage = false;
+                star_explode = false;
+            }
+            else{
+                enemyShips.splice(enemyShips.indexOf(this), 1);
+                explode = false;
+                damage = false;
+                _particles.length = 0;
+            }
+        }
+    }
 }
 
 //enemyShip object
@@ -196,7 +278,8 @@ class EnemyShip{
         this._shootShip = true;
         this._shootLen = 60;
         this._shootCount = 0;
-        this.lives = 3;
+        this.lives = 1;
+        this.damage = false;
         this.eLazor={
             _y:0,
             x:x,
@@ -208,6 +291,10 @@ class EnemyShip{
             _dimShip: false,
             _dimLen: 60,
             _dimCount: 0
+        };
+        this.particle={
+            _y:0,
+            _x:0,
         }
     }
     shipLives(){
@@ -215,10 +302,54 @@ class EnemyShip{
             this.lives -= 1;
         }
     }
+    explosion(x,y) {
+        if (_particles.length === 0) {
+            for (let i = 0; i < particles_num; i++) {
+                let xn = x + this.width/2
+                let yn = y + (this.height/2)
+                let num0 = Math.floor(Math.random()*15) + 1;
+                let num = Math.floor(Math.random()*15) + 1;
+                let num2 = (Math.round(Math.random()) ? 1 : -1)*num0;
+                let num3 = (Math.round(Math.random()) ? 1 : -1)*num;
+                let dx = num2;
+                let dy = num3;
+                let rad = Math.random() * 3;
+                let r = Math.round(Math.random()) * 255;
+                let g = Math.round(Math.random()) * 255;
+                let b = Math.round(Math.random()) * 255;
+                let ran = Math.round(Math.random()) + 1;
+                let width = this.width;
+                let color = `rgba(${r},${g},${b},${ran})`;
+                let p = this.particle;
+
+                let particle = new Particles_Con(
+                    xn, yn, dx, dy, rad, width, color, p
+                );
+                _particles.push(particle);
+            }
+        }
+
+        if (_particles.length > 1){
+            //console.log('he',_particles);
+            //turn off lazer here
+            this.damage = true
+            starShipCollide = false;
+            let b ='enemy'
+            _particles.forEach(function (particle){
+                particle.draw(b);
+
+            });
+        }
+    }
     draw(){
-        if(this.dim._dimShip){
+
+        if(explode){
+            this.explosion(this.x,this.y);
+        }
+        else if(this.dim._dimShip){
             this.dimmer(this.x,this.y);
-        }else{
+        }
+        else{
             ctx.drawImage(image[this.imageNumber], this.x, this.y, this.width, this.height);
         }
 
@@ -231,9 +362,9 @@ class EnemyShip{
         if(timer%5 === 0 && this.y < h/2){
             this._shootShip = true
             //console.log('EVERY5');
-        }            //
+        }
 
-        if(this._shootShip) {
+        if(this._shootShip && !this.damage) {
             this.shootLazor(this.y);
         }
     }
@@ -245,6 +376,11 @@ class EnemyShip{
         this.dim._dimCount++;
 
         if (this.dim._dimCount === this.dim._dimLen) {
+            //console.log('lives', this.lives);
+            if(this.lives <= 0){
+                explode = true;
+            }
+
             this.shipLives();
             this.dim._dimShip = false;
             this.dim._dimCount = 0;
@@ -254,8 +390,7 @@ class EnemyShip{
 
             ctx.fillStyle = 'rgba(0, 255, 0, 0.9)';
             this.eLazor.x = this.x + this.width / 2;
-            // if(this.eLazor._y)
-            //this.eLazor._y = ys + (this.eLazor.h * 2);
+
             ctx.fillRect(this.eLazor.x, ys+(this.eLazor.h*2)+this.eLazor._y, this.eLazor.w * 2, this.eLazor.h);
 
             this.eLazor._y += this.eLazor.h;
@@ -354,8 +489,8 @@ let gameLoop = (timestamp) =>{
             }
             let eachShip = new EnemyShip(
                 //set random values here
-                x,
-                10,
+                500,
+                300,
                 0,
                 0,
                 Math.floor(Math.random() * 2) + 1
@@ -364,7 +499,6 @@ let gameLoop = (timestamp) =>{
             enemyShips.push(eachShip);
             //console.log('timerEneny',timer,enemyShips);
         }
-
     }
 
     //loop through each enemy ship here
