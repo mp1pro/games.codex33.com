@@ -1,5 +1,5 @@
-console.log('hw',h)
-console.log('ww',w)
+console.log('hw',H)
+console.log('ww',W)
 
 const makeStars = count => {
     const out = [];
@@ -18,7 +18,7 @@ let stars = makeStars(10000);
 
 const clear = () => {
     c.fillStyle = "black";
-    c.fillRect(0, 0, w, h);
+    c.fillRect(0, 0, W, H);
 };
 
 const putPixel = (x, y, brightness) => {
@@ -30,7 +30,7 @@ const putPixel = (x, y, brightness) => {
 
 const moveStars = distance => {
     const count = stars.length;
-    for (var i = 0; i < count; i++) {
+    for (let i = 0; i < count; i++) {
         const s = stars[i];
         s.z -= distance;
         while (s.z <= 1) {
@@ -46,8 +46,8 @@ const init = time => {
 };
 
 const tick = time => {
-/*    console.log('w',w);
-    console.log('h',h);
+/*    console.log('W',W);
+    console.log('H',H);
     console.log('w1',window.width);
     console.log('h1',window.height);*/
     let elapsed = time - prevTime;
@@ -57,8 +57,8 @@ const tick = time => {
 
     clear();
 
-    const cx = w / 2;
-    const cy = h / 2;
+    const cx = W / 2;
+    const cy = H / 2;
 
     const count = stars.length;
     for (let i = 0; i < count; i++) {
@@ -67,7 +67,7 @@ const tick = time => {
         const x = cx + star.x / (star.z * 0.001);
         const y = cy + star.y / (star.z * 0.001);
 
-        if (x < 0 || x >= w || y < 0 || y >= h) {
+        if (x < 0 || x >= W || y < 0 || y >= H) {
             continue;
         }
 
