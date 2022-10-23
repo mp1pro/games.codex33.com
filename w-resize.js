@@ -3,18 +3,18 @@ canvas = document.getElementById("bg");
 canvas2 = document.getElementById("space");
 
 const setCanvasExtents = () => {
-    w = document.body.clientWidth;
-    h = document.body.clientHeight;
+    W = document.body.clientWidth;
+    H = document.body.clientHeight;
 
-    canvas.width = w;
-    canvas.height = h;
+    canvas.width = W;
+    canvas.height = H;
 
-    canvas2.width = w;
-    canvas2.height = h;
+    canvas2.width = W;
+    canvas2.height = H;
 
     //duplicate assignment for testing
-    window.width=w;
-    window.height=h;
+    window.width=W;
+    window.height=H;
 
     c = canvas.getContext("2d");
     ctx = canvas2.getContext("2d");
