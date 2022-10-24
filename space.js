@@ -58,8 +58,14 @@ function Ship(x, y, dx, dy, imageNumber){
 
     this.positions=[];
 }
+StarShip.prototype = Object.create(Ship.prototype);
+StarShip.prototype.constructor = StarShip;
+EnemyShip.prototype = Object.create(Ship.prototype);
+EnemyShip.prototype.constructor = EnemyShip;
+/*
 Object.setPrototypeOf(StarShip.prototype,Ship.prototype );
 Object.setPrototypeOf(EnemyShip.prototype,Ship.prototype );
+*/
 //Object.setPrototypeOf(Particles_Con.prototype,Ship.prototype );
 Ship.prototype.update = function(){
     if (this.constructor.name !== 'EnemyShip') {
@@ -481,6 +487,7 @@ function EnemyShip(x, y, dx, dy, imageNumber){
 };*/
 
 let gameLoop = (timestamp) =>{
+    let start = performance.now();
     //clear canvas
     ctx.clearRect(0, 0, W, H);
     //console.log('ts',timestamp);
@@ -556,7 +563,9 @@ let gameLoop = (timestamp) =>{
         eachShip.draw();
     })
 
+    let end = performance.now();
 
+    //console.log('performance',end-start);
     // call animation again
     window.requestAnimationFrame(gameLoop);
 }
