@@ -21,7 +21,8 @@ const particles_num = 100;
 let star_damage = false;
 let star_explode = false;
 let ship;
-let lastPosition = [];
+let finish = false;
+let oldWH = [];
 
 function Base_Con(x, y, dx, dy){
     //base props
@@ -57,7 +58,10 @@ function Ship(x, y, dx, dy, imageNumber){
     }
 
     this.positions=[];
+    //console.log('df',typeof this._particles);
+    this.ypositions=[{a:1}];
 }
+//INHERIT
 StarShip.prototype = Object.create(Ship.prototype);
 StarShip.prototype.constructor = StarShip;
 EnemyShip.prototype = Object.create(Ship.prototype);
@@ -120,9 +124,9 @@ Ship.prototype.draw = function(){
             this.shootStarShip();
             this.shotByStarShip();
         }
-        this.storeLast(this.x, this.y);
         this.update();
         this.bounds();
+        this.storeLast(this.x, this.y);
     };
 }
 Ship.prototype.bounds = function(){
@@ -205,7 +209,7 @@ Ship.prototype.explosion = function(x,y){
             this._particles.push(particle);
         }
     }
-
+    //TODO SET PARTICLES FOR SMALLER SCREEN
     if (this._particles.length > 1) {
         //console.log('m',b)
         this._particles.forEach((particle) =>{
@@ -227,7 +231,7 @@ Ship.prototype.explosion = function(x,y){
         });
     }
 }
-Ship.prototype.storeLast= function(x,y){
+Ship.prototype.storeLast = function(x,y){
         // push an item
         this.positions.push({
             x: x,
@@ -238,6 +242,15 @@ Ship.prototype.storeLast= function(x,y){
         if (this.positions.length > this.trailLen){
             this.positions.shift();
         }
+}
+
+Ship.prototype.reset = function(W,H){
+    if(this.positions.length > 0 && oldWH.length > 1) {
+        this.x = (oldWH[1].W / oldWH[0].W) * this.positions[0].x;
+        this.y = (oldWH[1].H / oldWH[0].H) * this.positions[0].y;
+        this.w = W / 10;
+        this.h = H / 10;
+    }
 }
 
 //StarShip object
@@ -275,12 +288,6 @@ function StarShip(x, y, dx, dy, imageNumber){
         }
     };
     /*this.dimmer = (xd,yd)=>{}//in ship.draw();*/
-    this.reset = (W,H)=>{
-        this.x = W / 2 - (W / 10) / 2;
-        this.y = H - (H / 10);
-        this.w = W / 10;
-        this.h = H / 10;
-    };
     //Star Ship methods
     this.trail = ()=>{
         for (let i = 0; i < this.positions.length; i++) {
@@ -315,8 +322,10 @@ function StarShip(x, y, dx, dy, imageNumber){
     };
 }
 
+//init
 (function() {
-
+    oldWH.push({W:W,H:H})
+    console.log('push',oldWH);
     let imagesLoaded = 0;
 
     for(let i =0; i < images.length; i++){
@@ -397,6 +406,7 @@ function EnemyShip(x, y, dx, dy, imageNumber){
         w:W/500,
         h:(H/20)
     };
+    this.lastWH = [];
     this.trailLen = 1;
     this.es = true;
     //all ships methods
@@ -421,20 +431,6 @@ function EnemyShip(x, y, dx, dy, imageNumber){
     }
 
     //strictly enemy ships
-    this.reset = (W,H)=>{
-        lastPosition.push({
-            H: H,
-            W: W
-        });
-
-        //get rid of first item
-        if (lastPosition.length > 2){
-            lastPosition.shift();
-        }
-
-        console.log('enemyWH',this.positions);
-        console.log('enemyXY',lastPosition );
-    };
 
     this.shipCollide=()=>{
         // collide with star ship
@@ -491,26 +487,15 @@ let gameLoop = (timestamp) =>{
     //clear canvas
     ctx.clearRect(0, 0, W, H);
     //console.log('ts',timestamp);
+
     //move ship here
-    ship.update();
+    //ship.update();
 
     //set boundaries here
-    ship.bounds();
-
-    // check if window resize here
-    if(reset === true){
-        enemyShips.forEach((eachShip)=>{
-            eachShip.reset(W,H);
-        });
-        ship.reset(W,H);
-        reset = false;
-    }
+    //ship.bounds();
 
     //trail effect
     //ship.trail();
-
-    //draw ship object here
-    ship.draw();
 
     //timer
     let currentTime = (new Date()).getTime();
@@ -525,7 +510,7 @@ let gameLoop = (timestamp) =>{
         // call the function that uses timer here
         //console.log('timer',timer);
         // noinspection DuplicatedCode
-        if(timer%2 === 0 && enemyShips.length < 1){
+        if(timer%2 === 0 && enemyShips.length < 3){
             let x = Math.floor(Math.random() * W);
 
             //good
@@ -546,10 +531,10 @@ let gameLoop = (timestamp) =>{
             }
             let eachShip = new EnemyShip(
                 //set random values here
-                300,
+                200,
                 150,
                 10,
-                0,
+                2,
                 Math.floor(Math.random() * 2) + 1
             );
 
@@ -557,11 +542,37 @@ let gameLoop = (timestamp) =>{
             //console.log('timerEneny',timer,enemyShips);
         }
     }
+    console.log('loopshipr',reSet);
+    // check if window resize here
+    if(enemyShips.length > 0) {
+        if (reSet === true) {
 
-    //loop through each enemy ship here
-    enemyShips.forEach((eachShip)=>{
-        eachShip.draw();
-    })
+            oldWH.push({W:W,H:H});
+
+            if (oldWH.length > 2){
+                oldWH.shift();
+            }
+
+            console.log('push2',oldWH);
+
+            ship.reset(W,H);
+            enemyShips.forEach((eachShip, index, arr) => {
+                eachShip.reset(W, H);
+                if (index === arr.length - 1) {
+                    reSet = false;
+                }
+            });
+        }
+        else {
+            //draw ship object here
+            ship.draw();
+            //loop through each enemy ship here
+            enemyShips.forEach((eachShip, index) => {
+                eachShip.draw();
+                //console.log('forEach',index);
+            });
+        }
+    }
 
     let end = performance.now();
 
