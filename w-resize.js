@@ -2,7 +2,7 @@
 canvas = document.getElementById("bg");
 canvas2 = document.getElementById("space");
 
-const setCanvasExtents = () => {
+const loady = ()=>{
     W = document.body.clientWidth;
     H = document.body.clientHeight;
 
@@ -11,20 +11,24 @@ const setCanvasExtents = () => {
 
     canvas2.width = W;
     canvas2.height = H;
+}
 
-    //duplicate assignment for testing
-    window.width=W;
-    window.height=H;
-
+const setCanvasLoad = () => {
+    loady();
     c = canvas.getContext("2d");
     ctx = canvas2.getContext("2d");
-    reset = true;
+    reSet = false;
 };
 
-setCanvasExtents();
+const setCanvasResize = () => {
+    loady();
+    reSet = true;
+};
 
-window.addEventListener('resize', function(event){
-    setCanvasExtents();
+setCanvasLoad();
+
+window.addEventListener('resize', () => {
+    setCanvasResize();
 });
 
 

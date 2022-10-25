@@ -1,5 +1,5 @@
-console.log('hw',H)
-console.log('ww',W)
+console.log('W',W)
+console.log('H',H)
 
 const makeStars = count => {
     const out = [];
